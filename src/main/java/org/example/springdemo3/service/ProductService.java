@@ -41,17 +41,6 @@ public class ProductService {
 
     public ProductDto create(ProductDto dto) {
         log.info("Creating product: {}", dto);
-
-        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            log.error("Validation error: Price must be greater than 0");
-            throw new ValidationException("PRICE_MUST_BE_GREATER_THAN_ZERO");
-        }
-
-        if (dto.getExpireDate() == null || !dto.getExpireDate().isAfter(LocalDate.now())) {
-            log.error("Validation error: Expire date must be in the future");
-            throw new ValidationException("EXPIRE_DATE_MUST_BE_IN_FUTURE");
-        }
-
         ProductEntity entity = productMapper.toEntity(dto);
         ProductEntity saved = productRepository.save(entity);
         return productMapper.toDto(saved);
@@ -62,11 +51,7 @@ public class ProductService {
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND_FOR_UPDATE"));
 
-        entity.setName(dto.getName());
-        entity.setPrice(dto.getPrice());
-        entity.setType(dto.getType());
-        entity.setQuantity(dto.getQuantity());
-        entity.setExpireDate(dto.getExpireDate());
+        productMapper.updateEntity(dto, entity);
 
         ProductEntity updated = productRepository.save(entity);
         return productMapper.toDto(updated);
@@ -82,11 +67,6 @@ public class ProductService {
 
     public void reserve(Long id, Integer quantity) {
         log.info("Reserving product with id: {}, quantity: {}", id, quantity);
-
-        if (quantity == null || quantity <= 0) {
-            log.error("Validation error: Reserve quantity must be greater than 0");
-            throw new ValidationException("QUANTITY_MUST_BE_GREATER_THAN_ZERO");
-        }
 
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND_FOR_RESERVE"));
