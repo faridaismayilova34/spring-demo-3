@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -33,5 +37,15 @@ public class GlobalExceptionHandler {
     public ExceptionDto handleValidationException(ValidationException e) {
         log.error("Validation exception: {}", e.getMessage());
         return new ExceptionDto(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ExceptionDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("Validation error: {}", e.getMessage());
+
+        return e.getBindingResult().getFieldErrors().stream()
+                .map(it -> new ExceptionDto(it.getField() + ": " + it.getDefaultMessage()))
+                .toList();
     }
 }
