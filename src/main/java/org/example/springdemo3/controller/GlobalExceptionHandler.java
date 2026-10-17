@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 
 @RestControllerAdvice
 @Slf4j
@@ -60,12 +59,3 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 }
-
-
-//@ExceptionHandler(MethodArgumentNotValidException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public List<ExceptionDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-//        log.error("Validation error: {}", e.getMessage());
-//        return e.getBindingResult().getFieldErrors().stream()
-//                .map(it -> new ExceptionDto(it.getField() + ": " + it.getDefaultMessage()))
-//                .toList();

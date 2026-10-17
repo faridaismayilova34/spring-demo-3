@@ -1,6 +1,10 @@
 package org.example.springdemo3.controller;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.springdemo3.dto.ProductDto;
 import org.example.springdemo3.service.ProductService;
@@ -16,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class ProductController {
+
     private final ProductService productService;
 
     @GetMapping
@@ -33,10 +38,12 @@ public class ProductController {
     public ProductDto create(@RequestBody @Validated(Create.class) ProductDto productDto) {
         return productService.create(productDto);
     }
+
     @PutMapping("/{id}")
     public ProductDto update(@PathVariable Long id, @RequestBody  @Validated(Update.class)ProductDto productDto) {
         return productService.update(id, productDto);
     }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
