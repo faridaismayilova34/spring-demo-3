@@ -2,6 +2,7 @@ package org.example.springdemo3.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -26,7 +27,10 @@ public class ProductEntity {
 
     private Integer quantity;
 
-    private LocalDate expireDate;
+    private LocalDate manufactureDate;
 
+    private LocalDate expiryDate;
+
+    @Builder.Default
     Boolean isExpired = false;
 }

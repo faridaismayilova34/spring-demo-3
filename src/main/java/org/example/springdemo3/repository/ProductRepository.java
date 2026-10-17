@@ -14,6 +14,6 @@ import java.time.LocalDate;
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     @Transactional
     @Modifying
-    @Query("update ProductEntity p set p.isExpired = true where p.expireDate < :today and p.isExpired = false")
+    @Query("update ProductEntity p set p.isExpired = true where p.expiryDate < :today and p.isExpired = false")
     int updateExpiredProductsStatus(@Param("today") LocalDate today);
 }

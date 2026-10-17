@@ -5,13 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.springdemo3.dto.ProductDto;
 import org.example.springdemo3.entity.ProductEntity;
 import org.example.springdemo3.exception.NotFoundException;
-import org.example.springdemo3.exception.ValidationException;
 import org.example.springdemo3.mapper.ProductMapper;
 import org.example.springdemo3.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +19,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-
 
     public List<ProductDto> getAll() {
         log.info("Fetching all products");
@@ -38,7 +34,6 @@ public class ProductService {
         return productMapper.toDto(entity);
     }
 
-
     public ProductDto create(ProductDto dto) {
         log.info("Creating product: {}", dto);
         ProductEntity entity = productMapper.toEntity(dto);
@@ -52,7 +47,6 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND_FOR_UPDATE"));
 
         productMapper.updateEntity(dto, entity);
-
         ProductEntity updated = productRepository.save(entity);
         return productMapper.toDto(updated);
     }
