@@ -1,23 +1,21 @@
 package org.example.springdemo3.controller;
-
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.springdemo3.dto.ProductDto;
 import org.example.springdemo3.service.ProductService;
+import org.example.springdemo3.validation.Create;
+import org.example.springdemo3.validation.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
 @Validated
 public class ProductController {
-
     private final ProductService productService;
 
     @GetMapping
@@ -32,15 +30,13 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDto create(@RequestBody @Valid ProductDto productDto) {
+    public ProductDto create(@RequestBody @Validated(Create.class) ProductDto productDto) {
         return productService.create(productDto);
     }
-
     @PutMapping("/{id}")
-    public ProductDto update(@PathVariable Long id, @RequestBody @Valid ProductDto productDto) {
+    public ProductDto update(@PathVariable Long id, @RequestBody  @Validated(Update.class)ProductDto productDto) {
         return productService.update(id, productDto);
     }
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
@@ -48,8 +44,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/reserve")
-    public void reserve(@PathVariable Long id,
-                        @RequestParam @NotNull(message = "Quantity cannot be null")
+    public void reserve(@PathVariable Long id, @RequestParam @NotNull(message = "Quantity cannot be null")
                         @Positive(message = "Quantity must be greater than 0") Integer quantity) {
         productService.reserve(id, quantity);
     }

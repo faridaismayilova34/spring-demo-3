@@ -3,10 +3,9 @@ package org.example.springdemo3.mapper;
 import org.example.springdemo3.dto.ProductDto;
 import org.example.springdemo3.entity.ProductEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel ="spring")
+@Mapper(componentModel = "spring")
 public interface ProductMapper {
 
     ProductDto toDto(ProductEntity entity);

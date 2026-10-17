@@ -2,9 +2,12 @@ package org.example.springdemo3.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.springdemo3.dto.ExceptionDto;
+import org.example.springdemo3.dto.FieldErrorDto;
+import org.example.springdemo3.dto.ValidationErrorResponseDto;
 import org.example.springdemo3.exception.NotFoundException;
 import org.example.springdemo3.exception.ValidationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,11 +44,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public List<ExceptionDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ValidationErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("Validation error: {}", e.getMessage());
 
-        return e.getBindingResult().getFieldErrors().stream()
-                .map(it -> new ExceptionDto(it.getField() + ": " + it.getDefaultMessage()))
+        List<FieldErrorDto> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> new FieldErrorDto(error.getField(), error.getDefaultMessage()))
                 .toList();
+
+        ValidationErrorResponseDto response = new ValidationErrorResponseDto(
+                400,
+                "Validation failed",
+                errors
+        );
+
+        return ResponseEntity.badRequest().body(response);
     }
 }
+
+
+//@ExceptionHandler(MethodArgumentNotValidException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public List<ExceptionDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+//        log.error("Validation error: {}", e.getMessage());
+//        return e.getBindingResult().getFieldErrors().stream()
+//                .map(it -> new ExceptionDto(it.getField() + ": " + it.getDefaultMessage()))
+//                .toList();

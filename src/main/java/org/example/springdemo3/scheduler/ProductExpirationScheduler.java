@@ -16,7 +16,6 @@ public class ProductExpirationScheduler {
     private final ProductRepository productRepository;
 
      @Scheduled(cron = "0 0 0 * * ?")
-    //  @Scheduled(fixedRate = 1000)
     public void checkAndUpdateExpiredProducts() {
         log.info("Automatic check for expired products has started...");
 
@@ -24,6 +23,8 @@ public class ProductExpirationScheduler {
 
         int updatedCount = productRepository.updateExpiredProductsStatus(today);
 
-        log.info("Check completed. A total of {} products were marked as 'isExpired = true' due to expiration.", updatedCount);
+        log.info("Check completed. A total of {}" +
+                " products were marked as 'isExpired = true' due to expiration.",
+                updatedCount);
     }
 }
