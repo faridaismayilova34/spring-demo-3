@@ -31,6 +31,6 @@ public class ProductEntity {
 
     private LocalDate expiryDate;
 
-    @Builder.Default
-    Boolean isExpired = false;
+
+    boolean isExpired;
 }

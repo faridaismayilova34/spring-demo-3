@@ -1,5 +1,6 @@
 package org.example.springdemo3.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.springdemo3.dto.ExceptionDto;
 import org.example.springdemo3.dto.FieldErrorDto;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
-
-
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -42,16 +41,33 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ValidationErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("Validation error: {}", e.getMessage());
-
         List<FieldErrorDto> errors = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> new FieldErrorDto(error.getField(), error.getDefaultMessage()))
                 .toList();
 
         ValidationErrorResponseDto response = new ValidationErrorResponseDto(
-                400,
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                errors
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ValidationErrorResponseDto> handleConstraintViolationException(ConstraintViolationException e) {
+        log.error("Constraint violation error: {}", e.getMessage());
+        List<FieldErrorDto> errors = e.getConstraintViolations().stream()
+                .map(violation -> {
+                    String fieldName = violation.getPropertyPath().toString();
+                    return new FieldErrorDto(fieldName, violation.getMessage());
+                })
+                .toList();
+
+        ValidationErrorResponseDto response = new ValidationErrorResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
                 "Validation failed",
                 errors
         );
@@ -59,3 +75,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 }
+
+
+
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ResponseEntity<ValidationErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+//        log.error("Validation error: {}", e.getMessage());
+//
+//        List<FieldErrorDto> errors = e.getBindingResult().getFieldErrors().stream()
+//                .map(error -> new FieldErrorDto(error.getField(), error.getDefaultMessage()))
+//                .toList();
+//
+//        ValidationErrorResponseDto response = new ValidationErrorResponseDto(
+//                400,
+//                "Validation failed",
+//                errors
+//        );
+
+//  return ResponseEntity.badRequest().body(response);
