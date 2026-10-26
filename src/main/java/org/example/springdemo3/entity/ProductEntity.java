@@ -31,6 +31,5 @@ public class ProductEntity {
 
     private LocalDate expiryDate;
 
-
-    boolean isExpired;
+   private Boolean isExpired;
 }

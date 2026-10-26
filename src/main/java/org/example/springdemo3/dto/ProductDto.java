@@ -53,6 +53,6 @@ public class ProductDto {
     private LocalDate expiryDate;
 
     @Schema(description = "Indicates whether the product has expired", example = "false", accessMode = Schema.AccessMode.READ_ONLY)
-    private boolean isExpired;
+    private Boolean isExpired;
 
 }

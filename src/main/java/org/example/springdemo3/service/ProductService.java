@@ -3,10 +3,15 @@ package org.example.springdemo3.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.springdemo3.dto.ProductDto;
+import org.example.springdemo3.dto.ProductFilterDto;
 import org.example.springdemo3.entity.ProductEntity;
 import org.example.springdemo3.exception.NotFoundException;
 import org.example.springdemo3.mapper.ProductMapper;
 import org.example.springdemo3.repository.ProductRepository;
+import org.example.springdemo3.service.specific.ProductSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +25,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public List<ProductDto> getAll() {
-        log.info("Fetching all products");
-        return productRepository.findAll().stream()
-                .map(productMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<ProductDto> getAll(ProductFilterDto filterDto, Pageable pageable) {
+        log.info("Fetching products with filters and pagination");
+
+       var specification = new ProductSpecification(filterDto).toPredicate();
+
+        return productRepository.findAll(specification, pageable)
+                .map(productMapper::toDto);
     }
+
 
     public ProductDto getById(Long id) {
         log.info("Fetching product with id: {}", id);
@@ -69,3 +77,11 @@ public class ProductService {
         productRepository.save(entity);
     }
 }
+
+
+//public List<ProductDto> getAll() {
+//    log.info("Fetching all products");
+//    return productRepository.findAll().stream()
+//            .map(productMapper::toDto)
+//            .collect(Collectors.toList());
+//}

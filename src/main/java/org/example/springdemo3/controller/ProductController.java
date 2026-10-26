@@ -12,14 +12,17 @@ import jakarta.validation.constraints.Positive;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springdemo3.dto.ProductDto;
+import org.example.springdemo3.dto.ProductFilterDto;
 import org.example.springdemo3.service.ProductService;
 import org.example.springdemo3.validation.Create;
 import org.example.springdemo3.validation.Update;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -30,17 +33,18 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @Operation(summary = "Get all products", description = "Retrieves a list of all products from the database")
+    @Operation(summary = "Get filtered and paginated products", description = "Retrieves a paginated list of products based on filter criteria")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful operation, product list returned",
-                    content = @Content(schema = @Schema(implementation = ProductDto.class))
-            )
+                    description = "Successful operation, product page returned"
+            ),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping
-    public List<ProductDto> getAll() {
-        return productService.getAll();
+    public Page<ProductDto> getAll(@ParameterObject ProductFilterDto filterDto,
+                                   @ParameterObject @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
+        return productService.getAll(filterDto, pageable);
     }
 
 
@@ -54,8 +58,9 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Product not found"
-            )
+            ), @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+
     @GetMapping("/{id}")
     public ProductDto getById(@Parameter(description = "Unique product ID",
             example = "101", required = true)
@@ -70,7 +75,8 @@ public class ProductController {
                     description = "Product successfully created",
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Validation error")
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
 
 
@@ -88,7 +94,8 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
             @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "404", description = "Product to update not found")
+            @ApiResponse(responseCode = "404", description = "Product to update not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PutMapping("/{id}")
     public ProductDto update(@Parameter(description = "Unique product ID to update", example = "101", required = true)
@@ -101,7 +108,8 @@ public class ProductController {
     @Operation(summary = "Delete a product", description = "Deletes a product from the database by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Product successfully deleted"),
-            @ApiResponse(responseCode = "404", description = "Product to delete not found")
+            @ApiResponse(responseCode = "404", description = "Product to delete not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -115,7 +123,8 @@ public class ProductController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully reserved"),
             @ApiResponse(responseCode = "400", description = "Invalid quantity or parameter"),
-            @ApiResponse(responseCode = "404", description = "Product to reserve not found")
+            @ApiResponse(responseCode = "404", description = "Product to reserve not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{id}/reserve")
     public void reserve(@Parameter(description = "Unique product ID to reserve", example = "101", required = true)
@@ -126,3 +135,16 @@ public class ProductController {
         productService.reserve(id, quantity);
     }
 }
+
+//    @Operation(summary = "Get all products", description = "Retrieves a list of all products from the database")
+//    @ApiResponses({
+//            @ApiResponse(
+//                    responseCode = "200",
+//                    description = "Successful operation, product list returned",
+//                    content = @Content(schema = @Schema(implementation = ProductDto.class))
+//            ), @ApiResponse(responseCode = "500", description = "Internal server error")
+//    })
+//    @GetMapping
+//    public List<ProductDto> getAll() {
+//        return productService.getAll();
+//    }
